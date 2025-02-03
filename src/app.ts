@@ -1,14 +1,12 @@
 ﻿import {initializeControllers} from "./init";
 import {RedisClient} from "./services/caching.service";
 import {DbAdapter} from "./models/db-adapter.model";
-require('dotenv').config(); 
+import 'dotenv/config'; // This automatically loads dotenv
+import express from 'express';
 
-const express = require('express');
 const app = express();
-const addRequestId = require('express-request-id');
 
 // Middleware
-app.use(addRequestId);
 app.use(express.json());
 
 if (process.env.SWAGGER_ENABLED) {
