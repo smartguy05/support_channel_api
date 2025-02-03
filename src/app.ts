@@ -3,10 +3,12 @@ import {RedisClient} from "./services/caching.service";
 import {DbAdapter} from "./models/db-adapter.model";
 import 'dotenv/config'; // This automatically loads dotenv
 import express from 'express';
+import cors from 'cors';
 
 const app = express();
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 
 if (process.env.SWAGGER_ENABLED) {
