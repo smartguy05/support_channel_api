@@ -8,7 +8,7 @@ exports.get = async (req, res) => {
         const result = await DbAdapter.find();
         ok(res, result);
     } catch (e) {
-        internalServerError(e);
+        internalServerError(res, e);
     }
 }
 
@@ -17,7 +17,7 @@ exports.find = async (req, res) => {
         const result = await DbAdapter.find();
         ok(res, result);
     } catch (e) {
-        internalServerError(e);
+        internalServerError(res, e);
     }
 }
 
@@ -36,7 +36,7 @@ exports.post = async (req, res) => {
         await DbAdapter.insert(config);
         ok(res, newId);
     } catch (e) {
-        internalServerError(e);
+        internalServerError(res, e);
     }
 }
 
@@ -46,6 +46,6 @@ exports.delete = async (req, res) => {
         await DbAdapter.delete({ uuid });
         ok(res);
     } catch (e) {
-        internalServerError(e);
+        internalServerError(res, e);
     }
 }

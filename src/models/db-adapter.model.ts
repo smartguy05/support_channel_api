@@ -5,6 +5,7 @@ export class DbAdapter {
     private static collection: string;
     
     public static async init(collection: string): Promise<void> {
+        // todo: use auth
         this.client = new MongoClient(process.env.MONGO_DB_URL);
         this.collection = collection;
     }
