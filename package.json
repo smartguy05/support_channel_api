@@ -1,0 +1,34 @@
+{
+  "name": "support_channel_api",
+  "version": "0.0.1",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "swagger-gen": "node ./dist/helpers/swagger-config.js",
+    "build": "tsc",
+    "debug": "tsc && npm run swagger-gen && node --inspect=127.0.0.1:9223 dist/app.js\n",
+    "serve": "tsc && npm run swagger-gen && node ./dist/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-request-id": "^3.0.0",
+    "express-validator": "^7.2.1",
+    "mongodb": "^6.13.0",
+    "openai": "^4.82.0",
+    "redis": "^4.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9",
+    "swagger-autogen": "^2.23.7",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  }
+}

@@ -4,8 +4,8 @@ const swaggerAutogen = require('swagger-autogen')();
 
 const doc = {
     info: {
-        title: 'ChromaDB API',
-        description: 'API endpoints for ChromaDB operations.',
+        title: 'Support Channel API',
+        description: 'API endpoints for Support Channel chat operations.',
     },
     host: 'localhost:' + process.env.PORT,
     schemes: ['http'],

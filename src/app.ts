@@ -1,11 +1,14 @@
 ﻿import {initializeControllers} from "./init";
 import {RedisClient} from "./services/caching.service";
+import {DbAdapter} from "./models/db-adapter.model";
 require('dotenv').config(); 
 
 const express = require('express');
 const app = express();
+const addRequestId = require('express-request-id');
 
-// Middleware to parse JSON bodies
+// Middleware
+app.use(addRequestId);
 app.use(express.json());
 
 if (process.env.SWAGGER_ENABLED) {
@@ -20,10 +23,13 @@ initializeControllers(app);
 console.log('Initializing redis client');
 RedisClient.init().then(() => {
     console.log('Redis initialized');
-    
-    const PORT = process.env.PORT || 8080;
-    app.listen(PORT, () => {
 
-        console.log(`Support Channel API server is running on port ${PORT}`);
+    console.log('Initializing db adapter');
+    DbAdapter.init(process.env.MONGO_DB_SCHEMA).then(() => {
+        console.log('Db adapter initialized');
+        const PORT = process.env.PORT || 8080;
+        app.listen(PORT, () => {
+            console.log(`Support Channel API server is running on port ${PORT}`);
+        });
     });
 });

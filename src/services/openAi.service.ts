@@ -1,24 +1,26 @@
 ﻿import OpenAI from 'openai';
 import {ChatCompletionMessageParam} from "openai/src/resources/chat/completions";
 import {RedisClient} from "./caching.service";
+import {ChatCompletionRequest} from "../models/chat-completion-request.model";
+import {KbConfig} from "../models/kb-config.model";
 
 const axios = require('axios');
 
-export async function getCompletion(query: string, collection: string, model: string, connectionId: string, max_tokens = 50, temperature = 0.7): Promise<string> {
+export async function getCompletion(request: ChatCompletionRequest): Promise<string> {
     // get messages
-    const messages = await RedisClient.readFromCache(connectionId) ?? [];
+    const messages = await RedisClient.readFromCache(request.connectionId) ?? [];
     const client = new OpenAI({
         apiKey: process.env.OPEN_AI_KEY
     });
     const response = await client.chat.completions.create({
-        messages: await buildMessageList(query, collection, messages),
-        model,
-        max_tokens,
-        temperature
+        messages: await buildMessageList(request.query, request.kbs, messages),
+        model: request.model,
+        max_tokens: request.max_tokens,
+        temperature: request.temperature
     });
     // cache messages
     messages.push(response.choices[0].message);
-    RedisClient.saveToCache(connectionId, messages);
+    await RedisClient.saveToCache(request.connectionId, messages);
     console.log('Response:', response.choices[0].message.content.trim());
     return response.choices[0].message.content.trim();
 }
@@ -41,7 +43,7 @@ export async function streamCompletion(model: string, messages: Array<ChatComple
     }
 }
 
-async function kbLookup(query: string, collection: string): Promise<string[]> {
+async function kbLookup(query: string, collection: string, api_key: string): Promise<string[]> {
     try {
         return (await axios.post(
             `${process.env.KB_API_URL}/search/${collection}`,
@@ -50,6 +52,7 @@ async function kbLookup(query: string, collection: string): Promise<string[]> {
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${api_key}`
                 },
             }
         ))?.data ?? [];
@@ -58,11 +61,17 @@ async function kbLookup(query: string, collection: string): Promise<string[]> {
     }
 }
 
-async function buildMessageList(query: string, collection: string, messages: Array<ChatCompletionMessageParam>): Promise<Array<ChatCompletionMessageParam>> {
+async function buildMessageList(query: string, kbCollections: KbConfig[], messages: Array<ChatCompletionMessageParam>): Promise<Array<ChatCompletionMessageParam>> {
     messages ??= [];
     if (!messages?.length || !messages.find(f => f.role == "system")) {
         // kb lookup
-        const docs = await kbLookup(query, collection);
+        let promises: Promise<string[]>[] = [];
+        await kbCollections.forEach(collection => {
+            promises.push(kbLookup(query, collection.name, collection.api_key));
+        });
+        
+        const values = await Promise.all(promises);
+        const docs: string[] = [].concat(...values);
         
         // build system prompt with documents
         let prompt = process.env.SYSTEM_PROMPT;
@@ -77,7 +86,13 @@ async function buildMessageList(query: string, collection: string, messages: Arr
         // todo: check if getting too long and trim some older messages if necessary
         // todo: check if need more context, right now get it anyway
         // kb lookup
-        const docs = await kbLookup(query, collection);
+        let promises: Promise<string[]>[] = [];
+        await kbCollections.forEach(collection => {
+            promises.push(kbLookup(query, collection.name, collection.api_key));
+        });
+
+        const values = await Promise.all(promises);
+        const docs: string[] = [].concat(...values);
 
         // build system prompt with documents
         const prompt = `\n
@@ -88,6 +103,6 @@ async function buildMessageList(query: string, collection: string, messages: Arr
         messages.unshift({ role: "system", content: prompt });
         messages.push({ role: "user", content: query });
     }
-    
+
     return messages;
 }
