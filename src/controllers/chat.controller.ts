@@ -2,6 +2,7 @@
 import {getCompletion} from "../services/openAi.service";
 import {DbAdapter} from "../models/db-adapter.model";
 import {ChatCompletionRequest} from "../models/chat-completion-request.model";
+import {randomUUID} from "crypto";
 
 exports.post = async (req, res) => {
     try {
@@ -17,7 +18,8 @@ exports.post = async (req, res) => {
             temperature: settings.temperature,
             model: settings.model,
             max_context_length: settings.max_context_length,
-            connectionId: 'test-1'
+            connectionId: `${req.params.uuid}+${randomUUID}`, // todo: figure out connection id tracking
+            system_prompt: settings.system_prompt
         }
         const result = await getCompletion(request);
         ok(res, result);
