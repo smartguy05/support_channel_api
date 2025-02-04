@@ -7,5 +7,6 @@ export class ChatCompletionRequest {
     public max_tokens = 150;
     public temperature = 0.7;
     public max_context_length = 4000;
+    public system_prompt: string;
     public kbs: KbConfig[];
 }

@@ -24,7 +24,6 @@ PORT=8080
 KB_API_URL=http://0.0.0.0:3000
 SWAGGER_ENABLED=true
 OPEN_AI_KEY=sk-your-api-key
-SYSTEM_PROMPT="You are an expert in answering accurate questions about the video game Risk of Rain 2. Give brief, accurate answers. If you don't know the answer, say so. Do not make anything up if you haven't been provided with relevant context."
 MESSAGE_CACHE_TIMEOUT=600000
 MONGO_DB_URL=mongodb://0.0.0.0:27017
 MONGO_DB_SCHEMA=support_channel_api

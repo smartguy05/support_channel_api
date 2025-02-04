@@ -13,7 +13,7 @@ export async function getCompletion(request: ChatCompletionRequest): Promise<str
         apiKey: process.env.OPEN_AI_KEY
     });
     const response = await client.chat.completions.create({
-        messages: await buildMessageList(request.query, request.kbs, messages),
+        messages: await buildMessageList(request.query, request.system_prompt, request.kbs, messages),
         model: request.model,
         max_tokens: request.max_tokens,
         temperature: request.temperature
@@ -61,12 +61,12 @@ async function kbLookup(query: string, collection: string, api_key: string): Pro
     }
 }
 
-async function buildMessageList(query: string, kbCollections: KbConfig[], messages: Array<ChatCompletionMessageParam>): Promise<Array<ChatCompletionMessageParam>> {
+async function buildMessageList(query: string, systemPrompt: string, kbCollections: KbConfig[], messages: Array<ChatCompletionMessageParam>): Promise<Array<ChatCompletionMessageParam>> {
     messages ??= [];
     if (!messages?.length || !messages.find(f => f.role == "system")) {
         // kb lookup
         let promises: Promise<string[]>[] = [];
-        await kbCollections.forEach(collection => {
+        kbCollections.forEach(collection => {
             promises.push(kbLookup(query, collection.name, collection.api_key));
         });
         
@@ -74,7 +74,7 @@ async function buildMessageList(query: string, kbCollections: KbConfig[], messag
         const docs: string[] = [].concat(...values);
         
         // build system prompt with documents
-        let prompt = process.env.SYSTEM_PROMPT;
+        let prompt = systemPrompt;
         prompt += `\n
             <Context>: \n
             ${(docs).join('\n')}
