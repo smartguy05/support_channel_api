@@ -10,7 +10,8 @@ export async function getCompletion(request: ChatCompletionRequest): Promise<str
     // get messages
     const messages = await RedisClient.readFromCache(request.connectionId) ?? [];
     const client = new OpenAI({
-        apiKey: process.env.OPEN_AI_KEY
+        apiKey: process.env.OPEN_AI_KEY,
+        baseURL: process.env.OPEN_AI_API_URL || 'https://api.openai.com'
     });
     const response = await client.chat.completions.create({
         messages: await buildMessageList(request.query, request.system_prompt, request.kbs, messages),
@@ -67,7 +68,7 @@ async function buildMessageList(query: string, systemPrompt: string, kbCollectio
         // kb lookup
         let promises: Promise<string[]>[] = [];
         kbCollections.forEach(collection => {
-            promises.push(kbLookup(query, collection.name, collection.api_key));
+            promises.push(kbLookup(query, collection.collection, collection.api_key));
         });
         
         const values = await Promise.all(promises);
@@ -88,7 +89,7 @@ async function buildMessageList(query: string, systemPrompt: string, kbCollectio
         // kb lookup
         let promises: Promise<string[]>[] = [];
         await kbCollections.forEach(collection => {
-            promises.push(kbLookup(query, collection.name, collection.api_key));
+            promises.push(kbLookup(query, collection.collection, collection.api_key));
         });
 
         const values = await Promise.all(promises);

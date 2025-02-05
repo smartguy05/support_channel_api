@@ -1,5 +1,5 @@
 ﻿
 export class KbConfig {
-    public name: string;
+    public collection: string;
     public api_key: string;
 }

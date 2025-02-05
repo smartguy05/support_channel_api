@@ -23,6 +23,7 @@ I use Docker Desktop
 PORT=8080
 KB_API_URL=http://0.0.0.0:3000
 SWAGGER_ENABLED=true
+OPEN_AI_API_URL=https://api.openai.com/v1/ or replace with local server~~~~
 OPEN_AI_KEY=sk-your-api-key
 MESSAGE_CACHE_TIMEOUT=600000
 MONGO_DB_URL=mongodb://0.0.0.0:27017
