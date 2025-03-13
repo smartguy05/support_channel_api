@@ -65,6 +65,36 @@ export function initializeControllers(app) {
         */
         adminController.post);
 
+    app.put('/admin/:uuid',
+        /* 
+			#swagger.tags = ['Admin']
+			#swagger.summary = 'Update Channel settings'
+			#swagger.description = 'Update Channel settings'
+	
+			#swagger.parameters['uuid'] = {
+				in: 'path',
+				description: 'UUID of the support channel',
+				required: true,
+				type: 'string'
+			}
+	
+			#swagger.parameters['body'] = {
+				in: 'body',
+				description: 'Updated chat settings',
+				required: true,
+				schema: {
+					system_prompt: "The updated system prompt for the support channel",
+					model: "Updated OpenAI model to use",
+					max_tokens: 200,
+					temperature: 0.8,
+					max_context_length: 5000,
+					kbs: [],
+					name: "The updated name of this support channel"
+				}
+			}
+		*/
+        adminController.put);
+
     app.delete('/admin/:uuid',
         /* 
             #swagger.tags = ['Admin']

@@ -40,6 +40,30 @@ exports.post = async (req, res) => {
     }
 }
 
+exports.put = async (req, res) => {
+    try {
+        const uuid = req.params.uuid;
+        const updateData: ChannelConfig = req.body;
+
+        // Check if the entry exists
+        const existingEntry = await DbAdapter.first({ uuid });
+        if (!existingEntry) {
+            return res.status(404).json({ message: 'Entry not found.' });
+        }
+
+        // Perform the update
+        await DbAdapter.update({ uuid }, { $set: updateData});
+
+        // Retrieve the updated entry
+        const updatedEntry = await DbAdapter.first({ uuid });
+
+        // Respond with the updated entry
+        ok(res, updatedEntry);
+    } catch (e) {
+        internalServerError(res, e);
+    }
+}
+
 exports.delete = async (req, res) => {
     try {
         const uuid = req.params.uuid;
