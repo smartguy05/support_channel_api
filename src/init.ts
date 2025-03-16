@@ -1,4 +1,6 @@
-﻿const healthCheckController = require('./controllers/health-check.controller');
+﻿import { v4 as uuidv4 } from 'uuid';
+
+const healthCheckController = require('./controllers/health-check.controller');
 const chatController = require('./controllers/chat.controller');
 const adminController = require('./controllers/admin.controller');
 
@@ -109,4 +111,25 @@ export function initializeControllers(app) {
           }
         */
         adminController.delete);
+}
+
+export function connectionIdMiddleware(req, res, next) {
+    // Check if connectionId exists in headers or cookies
+    let connectionId = req.cookies?.connectionId;
+
+    // If no connectionId, generate a new one
+    if (!connectionId) {
+        connectionId = uuidv4();
+
+        res.cookie('connectionId', connectionId, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none',
+            maxAge: 30 * 24 * 60 * 60 * 1000 // Optional: 30 days expiry
+        });
+    }
+
+    // Attach to request for downstream use
+    req.connectionId = connectionId;
+    next();
 }

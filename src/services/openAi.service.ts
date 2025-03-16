@@ -88,7 +88,7 @@ async function buildMessageList(query: string, systemPrompt: string, kbCollectio
         // todo: check if need more context, right now get it anyway
         // kb lookup
         let promises: Promise<string[]>[] = [];
-        await kbCollections.forEach(collection => {
+        kbCollections.forEach(collection => {
             promises.push(kbLookup(query, collection.collection, collection.api_key));
         });
 
