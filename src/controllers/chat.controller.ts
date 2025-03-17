@@ -18,7 +18,7 @@ exports.post = async (req, res) => {
             temperature: settings.temperature,
             model: settings.model,
             max_context_length: settings.max_context_length,
-            connectionId: `${req.params.uuid}+${randomUUID()}`, // todo: figure out connection id tracking
+            connectionId: req.connectionId,
             system_prompt: settings.system_prompt
         }
         const result = await getCompletion(request);

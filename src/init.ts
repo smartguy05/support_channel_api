@@ -1,4 +1,6 @@
-﻿const healthCheckController = require('./controllers/health-check.controller');
+﻿import { v4 as uuidv4 } from 'uuid';
+
+const healthCheckController = require('./controllers/health-check.controller');
 const chatController = require('./controllers/chat.controller');
 const adminController = require('./controllers/admin.controller');
 
@@ -65,6 +67,36 @@ export function initializeControllers(app) {
         */
         adminController.post);
 
+    app.put('/admin/:uuid',
+        /* 
+			#swagger.tags = ['Admin']
+			#swagger.summary = 'Update Channel settings'
+			#swagger.description = 'Update Channel settings'
+	
+			#swagger.parameters['uuid'] = {
+				in: 'path',
+				description: 'UUID of the support channel',
+				required: true,
+				type: 'string'
+			}
+	
+			#swagger.parameters['body'] = {
+				in: 'body',
+				description: 'Updated chat settings',
+				required: true,
+				schema: {
+					system_prompt: "The updated system prompt for the support channel",
+					model: "Updated OpenAI model to use",
+					max_tokens: 200,
+					temperature: 0.8,
+					max_context_length: 5000,
+					kbs: [],
+					name: "The updated name of this support channel"
+				}
+			}
+		*/
+        adminController.put);
+
     app.delete('/admin/:uuid',
         /* 
             #swagger.tags = ['Admin']
@@ -79,4 +111,25 @@ export function initializeControllers(app) {
           }
         */
         adminController.delete);
+}
+
+export function connectionIdMiddleware(req, res, next) {
+    // Check if connectionId exists in headers or cookies
+    let connectionId = req.cookies?.connectionId;
+
+    // If no connectionId, generate a new one
+    if (!connectionId) {
+        connectionId = uuidv4();
+
+        res.cookie('connectionId', connectionId, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none',
+            maxAge: 30 * 24 * 60 * 60 * 1000 // Optional: 30 days expiry
+        });
+    }
+
+    // Attach to request for downstream use
+    req.connectionId = connectionId;
+    next();
 }

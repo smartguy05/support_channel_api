@@ -1,15 +1,25 @@
-﻿import {initializeControllers} from "./init";
+﻿import {connectionIdMiddleware, initializeControllers} from "./init";
 import {RedisClient} from "./services/caching.service";
 import {DbAdapter} from "./models/db-adapter.model";
 import 'dotenv/config'; // This automatically loads dotenv
 import express from 'express';
 import cors from 'cors';
+import cookieParser from "cookie-parser";
 
 const app = express();
 
+const corsOptions: cors.CorsOptions = {
+    origin: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true, // Allow cookies to be sent
+    allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
+app.use(cookieParser());
+app.use(connectionIdMiddleware);
 
 if (process.env.SWAGGER_ENABLED) {
     const swaggerUi = require('swagger-ui-express');
